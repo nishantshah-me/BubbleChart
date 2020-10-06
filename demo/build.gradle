@@ -1,0 +1,49 @@
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion COMPILE_SDK_VERSION as int
+  buildToolsVersion BUILD_TOOLS_VERSION
+
+  defaultConfig {
+    minSdkVersion 23
+    targetSdkVersion COMPILE_SDK_VERSION as int
+    versionCode VERSION_CODE as int
+    versionName VERSION_NAME
+  }
+
+  def secretFile = file("${rootDir}/secret.gradle")
+  if (secretFile.exists()) {
+    apply from: secretFile.absolutePath
+    signingConfigs {
+      release {
+        storeFile project.ext.storeFile
+        storePassword project.ext.storePassword
+        keyAlias project.ext.keyAlias
+        keyPassword project.ext.keyPassword
+      }
+    }
+  }
+
+  buildTypes {
+    release {
+      if (secretFile.exists()) {
+        signingConfig signingConfigs.release
+      }
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+  lintOptions {
+    abortOnError false
+  }
+}
+
+dependencies {
+  implementation project(':library')
+  implementation 'com.android.support:appcompat-v7:28.0.0'
+  implementation 'com.android.support.constraint:constraint-layout:2.0.1'
+  implementation 'androidx.cardview:cardview:1.0.0'
+  implementation 'androidx.core:core-ktx:1.3.2'
+  implementation 'androidx.appcompat:appcompat:1.2.0'
+
+}
